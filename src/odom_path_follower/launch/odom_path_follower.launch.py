@@ -16,6 +16,15 @@ def generate_launch_description() -> LaunchDescription:
         parameters=[config_path],
     )
 
+    path_follower_node = Node(
+        package='odom_path_follower',
+        executable='path_follower',
+        name='path_follower',
+        output='screen',
+        parameters=[config_path],
+    )
+
     return LaunchDescription([
-        ekf_odom_node
+        ekf_odom_node,
+        path_follower_node
     ])

@@ -253,7 +253,7 @@ bool EKFOdom::loadParameters()
         RCLCPP_ERROR(this->get_logger(), "Failed to get ekf.measurement_noise.r_w"); return false;
     }
 
-    RCLCPP_INFO(this->get_logger(), "=== LineFollower parameters ===");
+    RCLCPP_INFO(this->get_logger(), "=== EKFOdom parameters ===");
     RCLCPP_INFO(this->get_logger(), "[System]");
     RCLCPP_INFO(this->get_logger(), "  loop_rate=%.1f", loop_rate_);
     RCLCPP_INFO(this->get_logger(), "  use_sim_time=%s", use_sim_time_ ? "true" : "false");

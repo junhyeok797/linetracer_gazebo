@@ -26,3 +26,23 @@ ekf_odom:
       measurement_noise:
         r_theta: 0.02
         r_w: 0.02
+
+path_follower:
+  ros__parameters:
+    system:
+      loop_rate: 20.0 # [Hz]
+    
+    model:
+      max_lin_vel: 0.26
+      max_ang_vel: 1.82
+      lin_vel_step_size: 0.1
+      ang_vel_step_size: 1.0
+
+    control:
+      path_relative_file: "home/user/ros2_ws/src/odom_path_follower/path/rbp_path.csv"
+      target_lin_vel: 0.2
+      base_lookahead_distance: 0.3
+      lookahead_gain: 0.2
+      min_lookahead_distance: 0.2
+      max_lookahead_distance: 1.0
+      goal_tolerance: 0.05

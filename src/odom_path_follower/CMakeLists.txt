@@ -11,8 +11,10 @@ find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 
 include_directories(
   include/odom_path_follower
@@ -34,7 +36,20 @@ ament_target_dependencies(ekf_odom
   tf2_geometry_msgs
 )
 
-install(TARGETS ekf_odom
+add_executable(path_follower
+  src/path_follower_node.cpp
+  src/path_follower.cpp
+)
+ament_target_dependencies(path_follower
+  rclcpp
+  nav_msgs
+  geometry_msgs
+  tf2
+  tf2_geometry_msgs
+  ament_index_cpp
+)
+
+install(TARGETS ekf_odom path_follower
   DESTINATION lib/${PROJECT_NAME}
 )
 
