@@ -54,7 +54,7 @@ install(TARGETS ekf_odom path_follower
 )
 
 install(
-  DIRECTORY config launch
+  DIRECTORY config launch path
   DESTINATION share/${PROJECT_NAME}/
 )
 

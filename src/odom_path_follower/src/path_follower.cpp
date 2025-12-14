@@ -15,13 +15,6 @@ PathFollower::PathFollower() : Node("path_follower")
         throw std::runtime_error("path_follower parameter loading failed");
     }
 
-    path_loaded_ = loadPath(path_relative_file_);
-    if (!path_loaded_)
-    {
-        RCLCPP_FATAL(this->get_logger(), "Failed to load path: %s", path_relative_file_.c_str());
-        throw std::runtime_error("path_follower path loading failed");
-    }
-
     // Subscribers
     s_odom_data_ = create_subscription<nav_msgs::msg::Odometry>(
         "ekf_odom", qos_profile,
@@ -29,6 +22,9 @@ PathFollower::PathFollower() : Node("path_follower")
 
     // Publishers
     p_vehicle_command_ = create_publisher<geometry_msgs::msg::Twist>("cmd_vel", qos_profile);
+
+    auto path_qos = rclcpp::QoS(rclcpp::KeepLast(1)).transient_local();
+    p_path_viz_ = create_publisher<nav_msgs::msg::Path>("target_path", path_qos);
 
     // Initialize
     init(this->now());
@@ -43,10 +39,16 @@ void PathFollower::init(const rclcpp::Time& current_time)
 {
     (void)current_time;
     has_odom_data_ = false;
-    path_loaded_ = false;
-    current_path_index_ = 0;
+    path_loaded_ = false;    current_path_index_ = 0;
     goal_reached_ = false;
     current_path_index_ = 0U;
+
+    path_loaded_ = loadPath(path_relative_file_);
+    if (!path_loaded_)
+    {
+        RCLCPP_FATAL(this->get_logger(), "Failed to load path: %s", path_relative_file_.c_str());
+        throw std::runtime_error("path_follower path loading failed");
+    }
 }
 
 void PathFollower::run(const rclcpp::Time& current_time)
@@ -260,7 +262,32 @@ bool PathFollower::loadPath(const std::string& relative_path)
     path_points_ = std::move(path);
     current_path_index_ = 0U;
 
-    RCLCPP_INFO(this->get_logger(), "Loaded %zu path points", path_points_.size());
+    // --- RViz 시각화 메시지 생성 부분 추가 ---
+    path_viz_msg_.header.frame_id = "odom"; // 실제 사용하는 프레임 이름 확인 (map 또는 odom)
+    path_viz_msg_.header.stamp = this->now();
+    path_viz_msg_.poses.clear();
+
+    for (const auto& pt : path_points_)
+    {
+        geometry_msgs::msg::PoseStamped pose_stamped;
+        pose_stamped.header = path_viz_msg_.header;
+        pose_stamped.pose.position.x = pt.x;
+        pose_stamped.pose.position.y = pt.y;
+        pose_stamped.pose.position.z = 0.0;
+        
+        // Yaw 값이 있다면 쿼터니언으로 변환하여 할당
+        tf2::Quaternion q;
+        q.setRPY(0, 0, pt.yaw);
+        pose_stamped.pose.orientation = tf2::toMsg(q);
+
+        path_viz_msg_.poses.push_back(pose_stamped);
+    }
+
+    // 경로 토픽 발행
+    p_path_viz_->publish(path_viz_msg_);
+    // ---------------------------------------
+
+    RCLCPP_INFO(this->get_logger(), "Loaded %zu path points and published to RViz", path_points_.size());
     return true;
 }
 

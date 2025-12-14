@@ -22,8 +22,9 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
 // ROS Message Header
-#include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
+#include "nav_msgs/msg/path.hpp"
+#include "geometry_msgs/msg/twist.hpp"
 
 // Algorithm
 #include "ament_index_cpp/get_package_share_directory.hpp"
@@ -72,6 +73,7 @@ private:
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr s_odom_data_;
 
     // Publishers
+    rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr p_path_viz_;
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr p_vehicle_command_;
 
     // Timer
@@ -84,6 +86,7 @@ private:
     std::mutex mutex_odom_data_;
 
     // Outputs
+    nav_msgs::msg::Path path_viz_msg_;
     geometry_msgs::msg::Twist vehicle_command_;
 
     // Parameters
