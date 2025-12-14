@@ -1,0 +1,6 @@
+/build
+/install
+/log
+
+.vscode
+run_docker.sh
